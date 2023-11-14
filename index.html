@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify API Demo</title>
+</head>
+<body>
+    <input type="text" id="search-input" placeholder="Zoek naar nummers">
+    <button id="button-submit">Zoek</button>
+    <div id="album-list"></div>
+
+    <script>
+        document.getElementById('button-submit').addEventListener('click', function () {
+            const clientId = '500985cd8455442ca2c9f811aabf346f';
+            const clientSecret = '435922ad41614c2c884fbd08d7115e49';
+            const searchInput = document.getElementById('search-input').value;
+            const apiEndpoint = `https://api.spotify.com/v1/search?q=${searchInput}&type=track`;
+
+            // Bereid de headers voor met de vereiste autorisatiegegevens
+            const headers = new Headers();
+            headers.append('Authorization', 'Basic ' + btoa(clientId + ':' + clientSecret));
+
+            // Fetch-aanroep naar de Spotify API met de aangepaste headers
+            fetch(apiEndpoint, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API-aanroep mislukt met status ${response.status}. ${response.statusText}`);
+            }
+                return response.json();
+            })
+
+            .then(data => {
+                console.log('Spotify Zoekresultaten:', data);
+                toonAlbums(data.tracks.items);
+            })
+            .catch(error => {
+                console.error('Fout bij het ophalen van gegevens van de Spotify API:', error.message);
+            });
+        });
+
+        function toonAlbums(albums) {
+            const albumListDiv = document.getElementById('album-list');
+
+            // Wis de huidige inhoud van de album-lijst
+            albumListDiv.innerHTML = '';
+
+            // Loop door elk album en voeg het toe aan de lijst
+            albums.forEach(album => {
+                const albumDiv = document.createElement('div');
+                albumDiv.innerHTML = `<p>${album.album.name}</p>`;
+                albumListDiv.appendChild(albumDiv);
+            });
+        }
+    </script>
+</body>
+</html>
